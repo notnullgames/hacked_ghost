@@ -67,12 +67,12 @@ export default class Game {
       for (let d in actions) {
         actions[d].forEach(a => {
           if (a.type === 'axis') {
-            if (gamepads[0][a.axis] > 0.5 && a.direction === 1) {
-              this.emit('action', {'type': d, value: true})
-            } else if (gamepads[0][a.axis] < -0.5 && a.direction === -1) {
-              this.emit('action', {'type': d, value: true})
-            } else {
+            if (gamepads[0].axes[a.axis] < 0.5 && gamepads[0].axes[a.axis] > -0.5) {
               this.emit('action', {'type': d, value: false})
+            } else if (gamepads[0].axes[a.axis] > 0.5 && a.direction === 1) {
+              this.emit('action', {'type': d, value: true})
+            } else if (gamepads[0].axes[a.axis] < -0.5 && a.direction === -1) {
+              this.emit('action', {'type': d, value: true})
             }
           }
         })
