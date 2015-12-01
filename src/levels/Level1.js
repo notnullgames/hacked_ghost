@@ -41,8 +41,8 @@ export default class Level1 extends Level {
       }
     }, 30000)
 
-    this.music = new Music('(t<<3)*[8/9,1,9/8,6/5,4/3,3/2,0][[0xd2d2c8,0xce4088,0xca32c8,0x8e4009][t>>14&3]>>(0x3dbe4688>>((t>>10&15)>9?18:t>>10&15)*3&7)*3&7]', true, 2000, 40)
-    this.music.volume = 0.05
+    this.music = new Music('(t<<3)*[8/9,1,9/8,6/5,4/3,3/2,0][[0xd2d2c8,0xce4088,0xca32c8,0x8e4009][t>>14&3]>>(0x3dbe4688>>((t>>10&15)>9?18:t>>10&15)*3&7)*3&7]', false, 4000, 40)
+    this.music.volume = 0.03
     this.music.play()
     this.beat = new Music('u=3*t>>t/4096%4&-t%(t>>16|16)*t>>14&8191,u/(u>>6|1)*4', false, false, 20)
     this.beat.volume = 0.4
