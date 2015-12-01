@@ -106,6 +106,20 @@ export default class Game {
     this.camera = new TargetCamera(35, window.innerWidth / window.innerHeight, 0.1, 10000)
 
     this.player = new Player(this)
+    this.on('action', this.player.onAction)
+    this.on('tick', this.player.onTick)
+    this.scene.add(this.player)
+
+    this.camera.addTarget({
+      name: 'player',
+      targetObject: this.player,
+      cameraPosition: new THREE.Vector3(0, 30, 50),
+      fixed: false,
+      stiffness: 0.01,
+      matchRotation: false
+    })
+    this.camera.setTarget('player')
+
     this.level = new Level1(this)
   }
 
@@ -126,13 +140,17 @@ export default class Game {
     for (let d in actions) {
       actions[d].forEach(a => {
         if (a.type === 'key' && a.key === ev.keyCode) {
-          this.emit('action', {'type': d, value: false})
+          if (d === 'fullscreen') {
+            this.emit('fullscreen')
+          }else if (d === 'instruct') {
+            this.emit('instruct')
+          } else {
+            this.emit('action', {'type': d, value: false})
+          }
         }
       })
     }
-    if (ev.keyCode === 70) {
-      this.emit('fullscreen')
-    }
+    // escape exits fullscreen
     if (ev.keyCode === 27 && this.fullscreenmode) {
       this.emit('fullscreen')
     }
@@ -141,7 +159,7 @@ export default class Game {
   onKeyDown (ev) {
     for (let d in actions) {
       actions[d].forEach(a => {
-        if (a.type === 'key' && a.key === ev.keyCode) {
+        if (a.type === 'key' && a.key === ev.keyCode && d !== 'instruct' && d !== 'fullscreen') {
           this.emit('action', {'type': d, value: true})
         }
       })
