@@ -23,6 +23,9 @@ const actions = {
     {'type': 'key', 'key': 68},
     {'type': 'key', 'key': 39},
     {'type': 'axis', 'axis': 0, 'direction': 1}
+  ],
+  'instruct': [
+    {'type': 'key', 'key': 73}
   ]
 }
 export default actions

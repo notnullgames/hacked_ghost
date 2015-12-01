@@ -1,6 +1,7 @@
 /**
  * Game engine that loads levels, sets up Player, etc
  */
+/* global responsiveVoice */
 
 import THREE from 'three'
 import loop from 'raf-loop'
@@ -11,7 +12,6 @@ import TargetCamera from './TargetCamera'
 import Player from './Player'
 import Level1 from './levels/Level1'
 
-/* global responsiveVoice */
 const voice = 'UK English Female'
 // const voice = 'UK English Male'
 // const voice = 'US English Female'
@@ -74,10 +74,6 @@ const voice = 'UK English Female'
 // const voice = 'Welsh Male'
 // const voice = 'US English Male'
 
-responsiveVoice.OnVoiceReady = () => {
-  responsiveVoice.ready = true
-}
-
 export default class Game {
   constructor () {
     emitonoff(this)
@@ -126,6 +122,7 @@ export default class Game {
   }
 
   onKeyUp (ev) {
+    // console.log(ev.keyCode)
     for (let d in actions) {
       actions[d].forEach(a => {
         if (a.type === 'key' && a.key === ev.keyCode) {
@@ -139,7 +136,6 @@ export default class Game {
     if (ev.keyCode === 27 && this.fullscreenmode) {
       this.emit('fullscreen')
     }
-    // console.log(ev.keyCode)
   }
 
   onKeyDown (ev) {
