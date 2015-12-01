@@ -132,7 +132,7 @@ export default class Game {
     if (ev.keyCode === 27 && this.fullscreenmode) {
       this.emit('fullscreen')
     }
-    console.log(ev.keyCode)
+    // console.log(ev.keyCode)
   }
 
   onKeyDown (ev) {
