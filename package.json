@@ -28,8 +28,8 @@
     "watchify": "^3.6.1"
   },
   "scripts": {
-    "build": "browserify src/index.js -t babelify -t glslify | uglifyjs -cm > src/bundle.js",
-    "start": "budo src/index.js:bundle.js --live -v -t babelify -t glslify -p errorify --dir src | garnish",
+    "build": "browserify src/index.js -t babelify -t glslify | uglifyjs -cm > webroot/bundle.js",
+    "start": "budo src/index.js:bundle.js --live -v -t babelify -t glslify -p errorify --dir webroot | garnish",
     "deploy": "gh-pages-deploy"
   },
   "glslify": {
@@ -38,7 +38,7 @@
     ]
   },
   "gh-pages-deploy": {
-    "staticpath": "src",
+    "staticpath": "webroot",
     "prep": [
       "build"
     ],
