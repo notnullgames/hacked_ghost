@@ -4,23 +4,24 @@
 
 import THREE from 'three'
 
-export default class Player {
+export default class Player extends THREE.Mesh {
   constructor (game, position) {
+    var geometry = new THREE.BoxGeometry(5, 5, 5)
+    var material = new THREE.MeshLambertMaterial({ color: 0xFF0000 })
+    super(geometry, material)
+
     this.onAction = this.onAction.bind(this)
     this.onTick = this.onTick.bind(this)
 
     this.game = game
     game.on('action', this.onAction)
+    game.scene.add(this)
 
-    var geometry = new THREE.BoxGeometry(5, 5, 5)
-    var material = new THREE.MeshLambertMaterial({ color: 0xFF0000 })
-    this.mesh = new THREE.Mesh(geometry, material)
-    // this.mesh.position.set(position || new THREE.Vector3(0, 0, 0))
-    game.scene.add(this.mesh)
+    // this.position.set(position || new THREE.Vector3(0, 0, 0))
 
     game.camera.addTarget({
       name: 'player',
-      targetObject: this.mesh,
+      targetObject: this,
       cameraPosition: new THREE.Vector3(0, 30, 50),
       fixed: false,
       stiffness: 0.01,
@@ -59,15 +60,7 @@ export default class Player {
   }
 
   onTick (dt) {
-    this.mesh.position.x += (this.velocity[0])
-    this.mesh.position.z += (this.velocity[1])
-  }
-
-  get position () {
-    return this.mesh.position
-  }
-
-  set position (val) {
-    this.mesh.position = val
+    this.position.x += (this.velocity[0])
+    this.position.z += (this.velocity[1])
   }
 }
