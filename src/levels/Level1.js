@@ -5,9 +5,6 @@ export default class Level1 extends Level {
   constructor (game) {
     super(game)
 
-    this.lesson1Action = this.lesson1Action.bind(this)
-    this.lesson2Action = this.lesson2Action.bind(this)
-
     var light = new THREE.DirectionalLight(0xffffff, 1)
     light.position.set(0, 100, 0)
     game.scene.add(light)
@@ -25,35 +22,44 @@ export default class Level1 extends Level {
         })
     }, 500)
 
+    this.lesson1 = this.lesson1.bind(this)
+    this.lesson2 = this.lesson2.bind(this)
+    this.lesson3 = this.lesson3.bind(this)
+
     this.on('lesson', (lesson) => {
+      console.log('lesson', lesson)
       if (lesson === 1) {
+        this.lessonActions = []
+        this.game.on('action', this.lesson1)
         this.game.say('Please familiarize yourself with the directional controls.')
-          .then(() => {
-            this.lessonActions = []
-            this.game.on('action', this.lesson1Action)
-          })
       } else if (lesson === 2) {
-        this.game.off('action', this.lesson1Action)
-        this.game.say('Good. Now, head towards the west edge of the data-grid.')
+        this.game.off('action', this.lesson1)
+        this.game.say('Good.')
           .then(() => {
-            this.game.on('action', this.lesson2Action)
+            this.game.on('action', this.lesson2)
+            this.game.say('Now, head towards the west edge of the data-grid.')
           })
       } else if (lesson === 3) {
-        this.game.off('action', this.lesson2Action)
-        this.game.say('Good. Now, press "F" for fullscreen.')
+        this.game.off('action', this.lesson2)
+        this.game.say('Good.')
           .then(() => {
-            this.game.on('fullscreen', () => {
-              this.emit('lesson', 4)
-            })
+            this.game.on('fullscreen', this.lesson3)
+            this.game.say('Now, press "F" for fullscreen')
+          })
+      } else if (lesson === 4) {
+        this.game.off('fullscreen', this.lesson3)
+        this.game.say('Good.')
+          .then(() => {
+            this.game.say('That concludes our lessons. Eventually, I will have more in here.')
           })
       }
     })
   }
 
-  lesson1Action (action) {
+  lesson1 (action) {
     if (action.value === true && this.lessonActions.indexOf(action.type) === -1) {
+      this.lessonActions.push(action.type)
       this.game.say(action.type).then(() => {
-        this.lessonActions.push(action.type)
         if (this.lessonActions.length === 4) {
           this.emit('lesson', 2)
         }
@@ -61,10 +67,14 @@ export default class Level1 extends Level {
     }
   }
 
-  lesson2Action (action) {
+  lesson2 (action) {
     if (this.game.player.position.x < -395) {
       this.emit('lesson', 3)
     }
+  }
+
+  lesson3 () {
+    this.emit('lesson', 4)
   }
 
   onTick (dt) {}
