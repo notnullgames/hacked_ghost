@@ -77,7 +77,19 @@ export default class Level1 extends Level {
     this.emit('lesson', 4)
   }
 
-  onTick (dt) {}
+  onTick (dt) {
+    // define bounds of grid
+    if (this.game.player.position.x < -400) {
+      this.game.player.position.x = -400
+    }else if (this.game.player.position.x > 400) {
+      this.game.player.position.x = 400
+    }
+    if (this.game.player.position.z < -400) {
+      this.game.player.position.z = -400
+    }else if (this.game.player.position.z > 400) {
+      this.game.player.position.z = 400
+    }
+  }
 
   destructor () {}
 }
