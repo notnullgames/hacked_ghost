@@ -6,8 +6,11 @@ import THREE from 'three'
 
 export default class Player {
   constructor (game, position) {
+    this.onAction = this.onAction.bind(this)
+    this.onTick = this.onTick.bind(this)
+
     this.game = game
-    game.on('action', this.onAction.bind(this))
+    game.on('action', this.onAction)
 
     var geometry = new THREE.BoxGeometry(5, 5, 5)
     var material = new THREE.MeshLambertMaterial({ color: 0xFF0000 })
@@ -27,7 +30,7 @@ export default class Player {
 
     this.velocity = [0, 0]
 
-    game.on('tick', this.onTick.bind(this))
+    game.on('tick', this.onTick)
   }
 
   onAction (action) {
@@ -58,5 +61,13 @@ export default class Player {
   onTick (dt) {
     this.mesh.position.x += (this.velocity[0])
     this.mesh.position.z += (this.velocity[1])
+  }
+
+  get position () {
+    return this.mesh.position
+  }
+
+  set position (val) {
+    this.mesh.position = val
   }
 }
