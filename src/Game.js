@@ -74,6 +74,10 @@ const voice = 'UK English Female'
 // const voice = 'Welsh Male'
 // const voice = 'US English Male'
 
+responsiveVoice.OnVoiceReady = () => {
+  responsiveVoice.ready = true
+}
+
 export default class Game {
   constructor () {
     emitonoff(this)
@@ -112,7 +116,10 @@ export default class Game {
   say (text) {
     return new Promise((resolve, reject) => {
       if (!responsiveVoice.voiceSupport()) {
-        return reject()
+        return reject('no voice support')
+      }
+      if (!responsiveVoice.ready) {
+        return reject('not ready')
       }
       responsiveVoice.speak(text, voice, {onend: resolve})
     })

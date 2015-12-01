@@ -15,12 +15,18 @@ export default class Level1 extends Level {
     game.scene.add(new THREE.Mesh(new THREE.SphereGeometry(2000, 32, 32), sky))
     game.scene.add(new THREE.GridHelper(400, 10))
 
-    setTimeout(() => {
-      this.game.say('Welcome to level 1. I am your instructor. Today, we will learn how to engage with the ghost net.')
+    const sayHello = () => {
+      this.game.say('I am your instructor. Today, we will learn how to engage with the ghost net.')
         .then(() => {
           this.emit('lesson', 1)
         })
-    }, 500)
+        .catch((reason) => {
+          if (reason === 'not ready') {
+            setTimeout(sayHello)
+          }
+        })
+    }
+    sayHello()
 
     this.lesson1 = this.lesson1.bind(this)
     this.lesson2 = this.lesson2.bind(this)
