@@ -68,7 +68,7 @@ export default class Level1 extends Level {
   }
 
   lesson2 (action) {
-    if (this.game.player.position.x < -395) {
+    if (this.game.player.position.x < -399) {
       this.emit('lesson', 3)
     }
   }
