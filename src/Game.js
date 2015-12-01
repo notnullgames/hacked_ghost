@@ -108,8 +108,8 @@ export default class Game {
       this.emit('action', {'type': 'west', value: false})
       console.log('UP')
     }
-    this.virtualjoystick.addEventListener('touchEnd', up)
-    this.virtualjoystick.addEventListener('mouseUp', up)
+    document.getElementById('container').addEventListener('touchend', up)
+    document.getElementById('container').addEventListener('mouseup', up)
 
     this.fullscreenmode = false
     this.on('tick', this.onTick)

@@ -44,12 +44,9 @@ export default class Level1 extends Level {
     this.music = new Music('(t<<3)*[8/9,1,9/8,6/5,4/3,3/2,0][[0xd2d2c8,0xce4088,0xca32c8,0x8e4009][t>>14&3]>>(0x3dbe4688>>((t>>10&15)>9?18:t>>10&15)*3&7)*3&7]', false, 4000, 40)
     this.music.volume = 0.03
     this.music.play()
-    this.beat = new Music('u=3*t>>t/4096%4&-t%(t>>16|16)*t>>14&8191,u/(u>>6|1)*4', false, false, 20)
-    this.beat.volume = 0.4
-    this.beat.play()
 
     const sayHello = () => {
-      this.game.say(`I am your instructor. Today, we will learn how to engage with the ghost net. At any time, you may press "${actions.instruct[0].name}" to repeat the last instruction.`)
+      this.game.say(`I am your instructor. Today, we will learn how to engage with the ghost net. At any time, you may press "${actions.instruct[0].name}" to repeat the last instruction. We are currently experiencing reduced bandwidth.`)
         .then(() => {
           this.emit('lesson', 1)
         })
@@ -62,28 +59,39 @@ export default class Level1 extends Level {
     sayHello()
 
     this.on('lesson', lesson => {
+      this.lastLesson = lesson
       if (lesson === 1) {
         this.lessonActions = []
         this.game.on('action', this.lesson1)
         this.game.say('Please familiarize yourself with the directional controls.')
       } else if (lesson === 2) {
-        this.lastLesson = 2
         this.game.off('action', this.lesson1)
         this.game.on('action', this.lesson2)
         this.game.say('Head towards the west edge of the data-grid.')
       } else if (lesson === 3) {
-        this.lastLesson = 3
         this.game.off('action', this.lesson2)
         this.game.on('fullscreen', this.lesson3)
         this.game.say(`Press "${actions.fullscreen[0].name}" for fullscreen`)
       } else if (lesson === 4) {
-        this.lastLesson = 4
         this.game.off('fullscreen', this.lesson3)
-        this.game.say('That concludes our lessons. Eventually, I will have more in here.')
-          .then(() => {
-            console.log('stop')
-            this.music.pause()
-          })
+        this.music.pause()
+        this.emit('lesson', 5)
+      } else if (lesson === 5) {
+        if (!this.spheres) {
+          this.spheres = []
+          var sphereMaterial = new THREE.MeshLambertMaterial({ color: 0x00CC00 })
+          for (let i = 0; i < 10; i++) {
+            let sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 4, 4), sphereMaterial)
+            sphere.userData.index = i
+            this.spheres.push(sphere)
+            this.game.scene.add(this.spheres[i])
+            this.spheres[i].position.x = (400 - (Math.random() * 800)) | 0
+            this.spheres[i].position.z = (400 - (Math.random() * 800)) | 0
+          }
+        }
+        this.game.say(`Collect the ${this.spheres.length} green data snippets.`)
+      } else if (lesson === 10) {
+        this.game.say('That concludes our lessons. Bandwidth has increased. Eventually, I will have more in here. ')
       }
     })
   }
@@ -114,15 +122,23 @@ export default class Level1 extends Level {
   }
 
   lesson3 () {
-    this.game.say('Good.').then(() => {
+    this.game.say('Good. Bandwidth has increased.').then(() => {
       this.emit('lesson', 4)
     })
   }
 
   onTick (dt) {
-    this.composer.render()
-    this.glitch.uniforms['angle'].value = Math.random() * 360
-    this.glitch.uniforms['byp'].value = Math.random() < 0.999
+    if (this.lastLesson < 5) {
+      this.composer.render()
+      if (Math.random() > 0.9) {
+        this.glitch.uniforms['angle'].value = Math.random() * 360
+      }
+      this.glitch.uniforms['byp'].value = Math.random() < 0.999
+    } else {
+      this.glitch.uniforms['byp'].value = false
+      this.glitch.uniforms['angle'].value = 0
+      this.glitch.uniforms['amount'].value = 0
+    }
 
     // simple define bounds of grid
     if (this.game.player.position.x < -400) {

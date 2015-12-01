@@ -7,7 +7,7 @@ import THREE from 'three'
 export default class Player extends THREE.Mesh {
   constructor () {
     var geometry = new THREE.BoxGeometry(5, 5, 5)
-    var material = new THREE.MeshLambertMaterial({ color: 0xFF0000 })
+    var material = new THREE.MeshLambertMaterial({ color: 0xca32c8 })
     super(geometry, material)
 
     this.onAction = this.onAction.bind(this)
