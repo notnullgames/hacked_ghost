@@ -4,6 +4,9 @@ import Level from '../Level'
 import Music from '../Music'
 
 import Level1 from './Level1'
+import ScreenShader, {EffectComposer} from '../shaders/ScreenShader'
+import DigitalGlitch from '../shaders/DigitalGlitch'
+import BadTVShader from '../shaders/BadTVShader'
 
 import {} from '../droid_sans_bold.typeface.js'
 
@@ -15,7 +18,19 @@ export default class Intro extends Level {
     this.oldPosition = this.game.player.matrixWorld.getPosition()
     this.game.player.visible = false
 
-    this.music = new Music('t*t/(t>>12&t>>8&63)<<7', true, 4000, 45)
+    this.glitch = new EffectComposer.ShaderPass(DigitalGlitch)
+    this.glitch.uniforms['amount'].value = 0.001
+    this.tv = new EffectComposer.ShaderPass(BadTVShader)
+    this.tv.uniforms['distortion'].value = 2
+    this.tv.uniforms['distortion2'].value = 0.2
+    this.tv.uniforms['speed'].value = 0.01
+    this.tv.uniforms['rollSpeed'].value = 0
+    this.composer = new ScreenShader([
+      this.glitch,
+      this.tv
+    ], this.game.renderer, this.game.scene, this.game.camera)
+
+    this.music = new Music('u=3*t>>t/4096%4&-t%(t>>16|16)*t>>14&8191,u/(u>>6|1)*4', true, 9000, 20)
     this.music.volume = 0.5
 
     const sayHello = () => {
@@ -45,6 +60,10 @@ export default class Intro extends Level {
   onTick (dt) {
     // ignore position changes
     this.game.player.position.copy(this.oldPosition)
+    this.glitch.uniforms['angle'].value = Math.random() * 360
+    this.glitch.uniforms['byp'].value = Math.random() < 0.99
+    this.tv.uniforms['time'].value =dt
+    this.composer.render()
   }
 
   onAction (action) {
@@ -70,3 +89,4 @@ export default class Intro extends Level {
     super.destructor()
   }
 }
+

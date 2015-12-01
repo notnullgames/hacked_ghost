@@ -3,6 +3,9 @@ import Level from '../Level'
 import actions from '../actions'
 import Music from '../Music'
 
+import ScreenShader, {EffectComposer} from '../shaders/ScreenShader'
+import DigitalGlitch from '../shaders/DigitalGlitch'
+
 export default class Level1 extends Level {
   constructor (game) {
     super(game)
@@ -11,6 +14,12 @@ export default class Level1 extends Level {
     this.lesson2 = this.lesson2.bind(this)
     this.lesson3 = this.lesson3.bind(this)
     this.onInstruct = this.onInstruct.bind(this)
+
+    this.glitch = new EffectComposer.ShaderPass(DigitalGlitch)
+    this.glitch.uniforms['amount'].value = 0.001
+    this.composer = new ScreenShader([
+      this.glitch
+    ], this.game.renderer, this.game.scene, this.game.camera)
 
     var light = new THREE.DirectionalLight(0xffffff, 1)
     light.position.set(0, 100, 0)
@@ -32,9 +41,12 @@ export default class Level1 extends Level {
       }
     }, 30000)
 
-    this.music = new Music('(t<<3)*[8/9,1,9/8,6/5,4/3,3/2,0][[0xd2d2c8,0xce4088,0xca32c8,0x8e4009][t>>14&3]>>(0x3dbe4688>>((t>>10&15)>9?18:t>>10&15)*3&7)*3&7]', false, false, 20)
+    this.music = new Music('(t<<3)*[8/9,1,9/8,6/5,4/3,3/2,0][[0xd2d2c8,0xce4088,0xca32c8,0x8e4009][t>>14&3]>>(0x3dbe4688>>((t>>10&15)>9?18:t>>10&15)*3&7)*3&7]', true, 2000, 40)
     this.music.volume = 0.05
     this.music.play()
+    this.beat = new Music('u=3*t>>t/4096%4&-t%(t>>16|16)*t>>14&8191,u/(u>>6|1)*4', false, false, 20)
+    this.beat.volume = 0.4
+    this.beat.play()
 
     const sayHello = () => {
       this.game.say(`I am your instructor. Today, we will learn how to engage with the ghost net. At any time, you may press "${actions.instruct[0].name}" to repeat the last instruction.`)
@@ -108,6 +120,10 @@ export default class Level1 extends Level {
   }
 
   onTick (dt) {
+    this.composer.render()
+    this.glitch.uniforms['angle'].value = Math.random() * 360
+    this.glitch.uniforms['byp'].value = Math.random() < 0.999
+
     // simple define bounds of grid
     if (this.game.player.position.x < -400) {
       this.game.player.position.x = -400
