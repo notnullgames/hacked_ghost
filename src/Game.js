@@ -11,6 +11,9 @@ import actions from './actions'
 import TargetCamera from './TargetCamera'
 import Player from './Player'
 import Level1 from './levels/Level1'
+import Intro from './levels/Intro'
+
+import VirtualJoystick from './VirtualJoystick'
 
 const voice = 'UK English Female'
 // const voice = 'UK English Male'
@@ -89,7 +92,24 @@ export default class Game {
     this.renderer.setPixelRatio(window.devicePixelRatio)
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.renderer.setClearColor(0x000000, 1)
-    document.body.appendChild(this.renderer.domElement)
+    document.getElementById('container').appendChild(this.renderer.domElement)
+
+    this.virtualjoystick = new VirtualJoystick({
+      container: document.getElementById('container'),
+      mouseSupport: true,
+      strokeStyle: 'green',
+      limitStickTravel: true,
+      stickRadius: 50
+    })
+    const up = () => {
+      this.emit('action', {'type': 'north', value: false})
+      this.emit('action', {'type': 'south', value: false})
+      this.emit('action', {'type': 'east', value: false})
+      this.emit('action', {'type': 'west', value: false})
+      console.log('UP')
+    }
+    this.virtualjoystick.addEventListener('touchEnd', up)
+    this.virtualjoystick.addEventListener('mouseUp', up)
 
     this.fullscreenmode = false
     this.on('tick', this.onTick)
@@ -102,6 +122,13 @@ export default class Game {
       this.emit('resize', {width: window.innerWidth, height: window.innerHeight})
     }, false)
 
+    this.load(Intro)
+  }
+
+  load (NewLevel) {
+    if (this.level) {
+      this.level.destructor()
+    }
     this.scene = new THREE.Scene()
     this.camera = new TargetCamera(35, window.innerWidth / window.innerHeight, 0.1, 10000)
 
@@ -119,8 +146,7 @@ export default class Game {
       matchRotation: false
     })
     this.camera.setTarget('player')
-
-    this.level = new Level1(this)
+    this.level = new NewLevel(this)
   }
 
   say (text) {
@@ -136,6 +162,7 @@ export default class Game {
   }
 
   onKeyUp (ev) {
+    this.emit('keyUp', ev)
     // console.log(ev.keyCode)
     for (let d in actions) {
       actions[d].forEach(a => {
@@ -157,6 +184,7 @@ export default class Game {
   }
 
   onKeyDown (ev) {
+    this.emit('keyDown', ev)
     for (let d in actions) {
       actions[d].forEach(a => {
         if (a.type === 'key' && a.key === ev.keyCode && d !== 'instruct' && d !== 'fullscreen') {
@@ -182,6 +210,18 @@ export default class Game {
           }
         })
       }
+    }
+    if (this.virtualjoystick.up()) {
+      this.emit('action', {'type': 'north', value: true})
+    }
+    if (this.virtualjoystick.down()) {
+      this.emit('action', {'type': 'south', value: true})
+    }
+    if (this.virtualjoystick.right()) {
+      this.emit('action', {'type': 'east', value: true})
+    }
+    if (this.virtualjoystick.left()) {
+      this.emit('action', {'type': 'west', value: true})
     }
     this.camera.update()
     this.renderer.render(this.scene, this.camera)

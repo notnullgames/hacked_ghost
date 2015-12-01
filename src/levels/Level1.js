@@ -1,6 +1,7 @@
 import THREE from 'three'
 import Level from '../Level'
 import actions from '../actions'
+import Music from '../Music'
 
 export default class Level1 extends Level {
   constructor (game) {
@@ -30,6 +31,10 @@ export default class Level1 extends Level {
         clearInterval(checkback)
       }
     }, 30000)
+
+    this.music = new Music('(t<<3)*[8/9,1,9/8,6/5,4/3,3/2,0][[0xd2d2c8,0xce4088,0xca32c8,0x8e4009][t>>14&3]>>(0x3dbe4688>>((t>>10&15)>9?18:t>>10&15)*3&7)*3&7]', false, false, 20)
+    this.music.volume = 0.05
+    this.music.play()
 
     const sayHello = () => {
       this.game.say(`I am your instructor. Today, we will learn how to engage with the ghost net. At any time, you may press "${actions.instruct[0].name}" to repeat the last instruction.`)
@@ -63,6 +68,10 @@ export default class Level1 extends Level {
         this.lastLesson = 4
         this.game.off('fullscreen', this.lesson3)
         this.game.say('That concludes our lessons. Eventually, I will have more in here.')
+          .then(() => {
+            console.log('stop')
+            this.music.pause()
+          })
       }
     })
   }

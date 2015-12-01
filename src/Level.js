@@ -13,5 +13,10 @@ export default class Level {
 
   onTick (dt) {}
 
-  destructor () {}
+  destructor () {
+    this.game.off('tick', this.onTick)
+    for (var i = this.game.scene.children.length - 1; i >= 0; i--) {
+      this.game.scene.remove(this.game.scene.children[i])
+    }
+  }
 }
