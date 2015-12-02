@@ -30,7 +30,7 @@ export default class Intro extends Level {
       this.tv
     ], this.game.renderer, this.game.scene, this.game.camera)
 
-    this.music = new Music('u=3*t>>t/4096%4&-t%(t>>16|16)*t>>14&8191,u/(u>>6|1)*4', true, 9000, 20)
+    this.music = new Music('(t|(t>>9|t>>7))*t&(t>>11|t>>9)', true, 8000, 48)
     this.music.volume = 0.5
 
     const sayHello = () => {
@@ -75,6 +75,7 @@ export default class Intro extends Level {
       mesh.scale.multiplyScalar(4)
       mesh.position.copy(this.oldPosition)
       this.game.scene.add(mesh)
+      this.music.volume = 0.2
       this.game.say('hacked ghost.')
         .then(() => {
           this.showTitle = true

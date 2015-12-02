@@ -2,6 +2,7 @@ import THREE from 'three'
 import Level from '../Level'
 import actions from '../actions'
 import Music from '../Music'
+import DataTerminal from '../DataTerminal'
 
 import ScreenShader, {EffectComposer} from '../shaders/ScreenShader'
 import DigitalGlitch from '../shaders/DigitalGlitch'
@@ -77,19 +78,11 @@ export default class Level1 extends Level {
         this.music.pause()
         this.emit('lesson', 5)
       } else if (lesson === 5) {
-        if (!this.spheres) {
-          this.spheres = []
-          var sphereMaterial = new THREE.MeshLambertMaterial({ color: 0x00CC00 })
-          for (let i = 0; i < 10; i++) {
-            let sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 4, 4), sphereMaterial)
-            sphere.userData.index = i
-            this.spheres.push(sphere)
-            this.game.scene.add(this.spheres[i])
-            this.spheres[i].position.x = (400 - (Math.random() * 800)) | 0
-            this.spheres[i].position.z = (400 - (Math.random() * 800)) | 0
-          }
+        if (!this.terminal) {
+          this.terminal = new DataTerminal('test')
+          this.game.scene.add(this.terminal)
         }
-        this.game.say(`Collect the ${this.spheres.length} green data snippets.`)
+        this.game.say(`Engage the green data terminal to continue.`)
       } else if (lesson === 10) {
         this.game.say('That concludes our lessons. Bandwidth has increased. Eventually, I will have more in here. ')
       }
