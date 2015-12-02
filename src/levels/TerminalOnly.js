@@ -12,9 +12,7 @@ export default class TerminalOnly extends Level {
   }
 
   onTick (dt) {}
-
-  destructor () {
-  }
+  destructor () {}
 }
 
 TerminalOnly.noPlayer = true

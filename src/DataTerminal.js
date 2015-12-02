@@ -2,6 +2,8 @@
  * DataTerminal definition
  */
 
+/* global localStorage */
+
 import THREE from 'three'
 
 export default class DataTerminal extends THREE.Mesh {
@@ -12,22 +14,26 @@ export default class DataTerminal extends THREE.Mesh {
   }
 
   open () {
-    document.getElementById('terminal').className = 'active'
-    document.getElementById('prompt').innerText = this.name.toUpperCase() + '> '
-    this.game.ignoreKeys = true
-    this.game.handleDirections = false
-    this.game.on('keyUp', this.onKey)
+    if (!this.currentlyOpen) {
+      this.currentlyOpen = true
+      this.game.on('keyUp', this.onKey)
+      document.getElementById('terminal').className = 'active'
+      document.getElementById('prompt').innerText = this.name.toUpperCase() + '> '
+      document.getElementById('history').innerText = 'TYPE "NEW" TO CREATE A NEW ACCOUNT.\nTYPE "EXIT" TO LOGOUT.\n'
+      this.game.ignoreKeys = true
+      this.game.handleDirections = false
+    }
   }
 
   close () {
     this.game.off('keyUp', this.onKey)
-    this.game.ignoreKeys = true
+    this.game.ignoreKeys = false
     this.game.handleDirections = true
-    this.el.className = ''
+    document.getElementById('terminal').className = ''
+    this.currentlyOpen = false
   }
 
   onKey (e) {
-    e.preventDefault()
     var keyboardMap = [
       '', // [0]
       '', // [1]
@@ -287,9 +293,54 @@ export default class DataTerminal extends THREE.Mesh {
       '' // [255]
     ]
     var c = keyboardMap[e.keyCode]
-     if (c.length === 1) {
+    if (c === 'SPACE') {
+      c = ' '
+    }
+    if (c.length === 1) {
       document.getElementById('typed').innerText += document.getElementById('cursor').innerText
       document.getElementById('cursor').innerText = c
+    } else if (c === 'BACK_SPACE') {
+      let a = document.getElementById('typed').innerText.toString().split('')
+      let l = a.pop()
+      if (!l) {
+        l = ''
+      }
+      document.getElementById('typed').innerText = a.join('')
+      document.getElementById('cursor').innerText = l
+    } else if (c === 'ENTER') {
+      this.command(document.getElementById('typed').innerText + document.getElementById('cursor').innerText)
+    }
+  }
+
+  command (command) {
+    command = command.trim()
+    document.getElementById('history').innerText = document.getElementById('history').innerText + document.getElementById('prompt').innerText + command + '\n'
+    document.getElementById('typed').innerText = ''
+    document.getElementById('cursor').innerText = ''
+    if (this.mode !== 'new') {
+      if (command.split(' ')[0] === 'EXIT') {
+        this.close()
+      } else if (command.split(' ')[0] !== 'NEW') {
+        document.getElementById('history').innerText = document.getElementById('history').innerText + 'COMMAND NOT FOUND.\n'
+      } else {
+        this.mode = 'new'
+        if (localStorage.username) {
+          document.getElementById('prompt').innerText = `YOU ALREADY TRIED TO REGISTER AS "${localStorage.username.toUpperCase()}".\n PLEASE ENTER YOUR NEW USERNAME: `
+        } else {
+          document.getElementById('prompt').innerText = 'PLEASE ENTER YOUR USERNAME: '
+        }
+      }
+    } else {
+      if (!this.username) {
+        this.username = command
+        document.getElementById('prompt').innerText = 'PLEASE ENTER YOUR PHONE NUMBER: '
+      }else if (!this.phone) {
+        this.phone = command
+        document.getElementById('history').innerText = document.getElementById('history').innerText + 'VERIFYING YOUR PHONE NUMBER.\n'
+        document.getElementById('prompt').innerText = this.name.toUpperCase() + '> '
+        this.game.emit('register', {username: this.username, phone: this.phone})
+        this.mode = false
+      }
     }
   }
 

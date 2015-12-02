@@ -98,11 +98,14 @@
       -ms-animation: blink 1s infinite steps(1, start);
       animation: blink 1s infinite steps(1, start);
     }
+    #history {
+      white-space: pre;
+    }
   </style>
 </head>
 <body>
   <div id="container">
-    <div id="terminal"><span id="prompt"></span><span id="typed"></span><span id="cursor">&nbsp;</span><input id="in"></div>
+    <div id="terminal"><div id="history"></div><span id="prompt"></span><span id="typed"></span><span id="cursor">&nbsp;</span><input id="in"></div>
   </div>
   <script src='https://code.responsivevoice.org/responsivevoice.js'></script>
   <script src="bundle.js"></script>

@@ -1,7 +1,7 @@
 /**
  * Game engine that loads levels, sets up Player, etc
  */
-/* global responsiveVoice */
+/* global responsiveVoice localStorage */
 
 import THREE from 'three'
 import loop from 'raf-loop'
@@ -124,7 +124,13 @@ export default class Game {
       this.emit('resize', {width: window.innerWidth, height: window.innerHeight})
     }, false)
 
-    this.load(TerminalOnly)
+    this.on('register', (user) => {
+      localStorage.username = user.username.toLowerCase()
+      localStorage.phone = user.phone
+      console.log(`trigger call to ${localStorage.phone} for ${localStorage.username}`)
+    })
+
+    this.load(Intro)
   }
 
   load (NewLevel) {
@@ -196,6 +202,10 @@ export default class Game {
   }
 
   onKeyDown (ev) {
+    // swallow keys
+    ev.preventDefault()
+    ev.cancelBubble = true
+    if (ev.stopPropagation) ev.stopPropagation()
     this.emit('keyDown', ev)
     if (!this.ignoreKeys) {
       for (let d in actions) {

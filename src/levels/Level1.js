@@ -89,8 +89,21 @@ export default class Level1 extends Level {
         this.game.say(`Engage the green data terminal to continue.`)
       } else if (lesson === 6) {
         this.game.off('collide', this.lesson6)
-        this.game.say('type "login"')
+        this.game.say('Type "NEW" to create a new account. You will need to enter your real phone number.')
         this.terminal.open()
+        this.game.on('register', (user) => {
+          this.game.say(`Welcome to the ghost net, ${user.username}. An automated system will call you shortly, and verify your phone number. Please follow the prompts.`)
+            .then(() => {
+              if (this.terminal.currentlyOpen) {
+                this.terminal.close()
+                this.game.say('I have closed your terminal for you.')
+              }
+            })
+          this.emit('lesson', 7)
+        })
+        this.game.on('verified', (user) => {
+          this.game.say('You have been verified.')
+        })
       } else if (lesson === 10) {
         this.game.say('That concludes our lessons. Bandwidth has increased. Eventually, I will have more in here. ')
       }
