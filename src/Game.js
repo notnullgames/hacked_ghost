@@ -237,10 +237,10 @@ export default class Game {
     this.fullscreenmode = !this.fullscreenmode
     if (this.fullscreenmode) {
       if ('webkitCancelFullScreen' in document) {
-        this.renderer.domElement.webkitRequestFullScreen()
+        document.getElementById('container').webkitRequestFullScreen()
         this.say('full screen mode activated.')
       } else if ('mozCancelFullScreen' in document) {
-        this.renderer.domElement.mozRequestFullScreen()
+        document.getElementById('container').mozRequestFullScreen()
         this.say('full screen mode activated.')
       } else {
         this.say('Your device is incapable of full screen mode')
