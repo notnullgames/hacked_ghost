@@ -119,15 +119,15 @@ export default class Music {
     }
   }
 
-  createAudio (algo, stereo, frequency, seconds) {
+  url (algo, stereo, frequency, seconds) {
     var generated = generateSound(algo, frequency, seconds)
+    return 'data:audio/x-wav,' + b(RIFFChunk(stereo ? 2 : 1, 16, generated[0], generated[1]))
+  }
+
+  createAudio (algo, stereo, frequency, seconds) {
     var el = new Audio()
     el.setAttribute('loop', true)
-    if (!stereo) {
-      el.setAttribute('src', 'data:audio/x-wav,' + b(RIFFChunk(1, 16, generated[0], generated[1])))
-    }else {
-      el.setAttribute('src', 'data:audio/x-wav,' + b(RIFFChunk(2, 16, generated[0], generated[1])))
-    }
+    el.setAttribute('src', this.url(algo, stereo, frequency, seconds))
     return el
   }
 
