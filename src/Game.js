@@ -10,6 +10,8 @@ import emitonoff from 'emitonoff'
 import actions from './actions'
 import TargetCamera from './TargetCamera'
 import Player from './Player'
+
+import TerminalOnly from './levels/TerminalOnly'
 import Level1 from './levels/Level1'
 import Intro from './levels/Intro'
 
@@ -106,11 +108,11 @@ export default class Game {
       this.emit('action', {'type': 'south', value: false})
       this.emit('action', {'type': 'east', value: false})
       this.emit('action', {'type': 'west', value: false})
-      console.log('UP')
     }
     document.getElementById('container').addEventListener('touchend', up)
     document.getElementById('container').addEventListener('mouseup', up)
 
+    this.collidables = []
     this.fullscreenmode = false
     this.on('tick', this.onTick)
     this.on('resize', this.onResize)
@@ -122,13 +124,14 @@ export default class Game {
       this.emit('resize', {width: window.innerWidth, height: window.innerHeight})
     }, false)
 
-    this.load(Intro)
+    this.load(TerminalOnly)
   }
 
   load (NewLevel) {
     if (this.level) {
       this.level.destructor()
     }
+    this.collidables = []
     this.scene = new THREE.Scene()
     this.camera = new TargetCamera(35, window.innerWidth / window.innerHeight, 0.1, 10000)
 
@@ -136,7 +139,6 @@ export default class Game {
     this.on('action', this.player.onAction)
     this.on('tick', this.player.onTick)
     this.scene.add(this.player)
-
     this.camera.addTarget({
       name: 'player',
       targetObject: this.player,
@@ -146,6 +148,12 @@ export default class Game {
       matchRotation: false
     })
     this.camera.setTarget('player')
+
+    if (!NewLevel.noPlayer) {
+      this.player.visible = true
+    } else {
+      this.player.visible = false
+    }
     this.level = new NewLevel(this)
   }
 
@@ -163,65 +171,88 @@ export default class Game {
 
   onKeyUp (ev) {
     this.emit('keyUp', ev)
-    // console.log(ev.keyCode)
-    for (let d in actions) {
-      actions[d].forEach(a => {
-        if (a.type === 'key' && a.key === ev.keyCode) {
-          if (d === 'fullscreen') {
-            this.emit('fullscreen')
-          }else if (d === 'instruct') {
-            this.emit('instruct')
-          } else {
-            this.emit('action', {'type': d, value: false})
+    if (!this.ignoreKeys) {
+      // console.log(ev.keyCode)
+      for (let d in actions) {
+        actions[d].forEach(a => {
+          if (a.type === 'key' && a.key === ev.keyCode) {
+            if (d === 'fullscreen') {
+              this.emit('fullscreen')
+            }else if (d === 'instruct') {
+              this.emit('instruct')
+            } else {
+              if (this.player.visible) {
+                this.emit('action', {'type': d, value: false})
+              }
+            }
           }
-        }
-      })
-    }
-    // escape exits fullscreen
-    if (ev.keyCode === 27 && this.fullscreenmode) {
-      this.emit('fullscreen')
+        })
+      }
+      // escape exits fullscreen
+      if (ev.keyCode === 27 && this.fullscreenmode) {
+        this.emit('fullscreen')
+      }
     }
   }
 
   onKeyDown (ev) {
     this.emit('keyDown', ev)
-    for (let d in actions) {
-      actions[d].forEach(a => {
-        if (a.type === 'key' && a.key === ev.keyCode && d !== 'instruct' && d !== 'fullscreen') {
-          this.emit('action', {'type': d, value: true})
-        }
-      })
-    }
-  }
-
-  onTick (dt) {
-    const gamepads = navigator.getGamepads()
-    if (gamepads && gamepads[0]) {
+    if (!this.ignoreKeys) {
       for (let d in actions) {
         actions[d].forEach(a => {
-          if (a.type === 'axis') {
-            if (gamepads[0].axes[a.axis] < 0.5 && gamepads[0].axes[a.axis] > -0.5) {
-              this.emit('action', {'type': d, value: false})
-            } else if (gamepads[0].axes[a.axis] > 0.5 && a.direction === 1) {
-              this.emit('action', {'type': d, value: true})
-            } else if (gamepads[0].axes[a.axis] < -0.5 && a.direction === -1) {
+          if (a.type === 'key' && a.key === ev.keyCode && d !== 'instruct' && d !== 'fullscreen') {
+            if (this.player.visible) {
               this.emit('action', {'type': d, value: true})
             }
           }
         })
       }
     }
-    if (this.virtualjoystick.up()) {
-      this.emit('action', {'type': 'north', value: true})
-    }
-    if (this.virtualjoystick.down()) {
-      this.emit('action', {'type': 'south', value: true})
-    }
-    if (this.virtualjoystick.right()) {
-      this.emit('action', {'type': 'east', value: true})
-    }
-    if (this.virtualjoystick.left()) {
-      this.emit('action', {'type': 'west', value: true})
+  }
+
+  onTick (dt) {
+    if (this.player.visible) {
+      const gamepads = navigator.getGamepads()
+      if (gamepads && gamepads[0]) {
+        for (let d in actions) {
+          actions[d].forEach(a => {
+            if (a.type === 'axis') {
+              if (gamepads[0].axes[a.axis] < 0.5 && gamepads[0].axes[a.axis] > -0.5) {
+                this.emit('action', {'type': d, value: false})
+              } else if (gamepads[0].axes[a.axis] > 0.5 && a.direction === 1) {
+                this.emit('action', {'type': d, value: true})
+              } else if (gamepads[0].axes[a.axis] < -0.5 && a.direction === -1) {
+                this.emit('action', {'type': d, value: true})
+              }
+            }
+          })
+        }
+      }
+      if (this.virtualjoystick.up()) {
+        this.emit('action', {'type': 'north', value: true})
+      }
+      if (this.virtualjoystick.down()) {
+        this.emit('action', {'type': 'south', value: true})
+      }
+      if (this.virtualjoystick.right()) {
+        this.emit('action', {'type': 'east', value: true})
+      }
+      if (this.virtualjoystick.left()) {
+        this.emit('action', {'type': 'west', value: true})
+      }
+
+      // collision detection
+      var originPoint = this.player.position.clone()
+      for (var vertexIndex = 0; vertexIndex < this.player.geometry.vertices.length; vertexIndex++) {
+        var localVertex = this.player.geometry.vertices[vertexIndex].clone()
+        var globalVertex = localVertex.applyMatrix4(this.player.matrix)
+        var directionVector = globalVertex.sub(this.player.position)
+        var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize())
+        var collisionResults = ray.intersectObjects(this.collidables)
+        if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
+          this.emit('collide', collisionResults)
+        }
+      }
     }
     this.camera.update()
     this.renderer.render(this.scene, this.camera)

@@ -13,10 +13,10 @@ import {} from '../droid_sans_bold.typeface.js'
 export default class Intro extends Level {
   constructor (game) {
     super(game)
-    this.onAction = this.onAction.bind(this)
-    this.game.on('action', this.onAction)
+    this.onKey = this.onKey.bind(this)
+    this.game.on('keyUp', this.onKey)
+    this.game.on('action', this.onKey)
     this.oldPosition = this.game.player.matrixWorld.getPosition()
-    this.game.player.visible = false
 
     this.glitch = new EffectComposer.ShaderPass(DigitalGlitch)
     this.glitch.uniforms['amount'].value = 0.001
@@ -62,11 +62,11 @@ export default class Intro extends Level {
     this.game.player.position.copy(this.oldPosition)
     this.glitch.uniforms['angle'].value = Math.random() * 360
     this.glitch.uniforms['byp'].value = Math.random() < 0.99
-    this.tv.uniforms['time'].value =dt
+    this.tv.uniforms['time'].value = dt
     this.composer.render()
   }
 
-  onAction (action) {
+  onKey () {
     if (this.showTitle) {
       this.game.load(Level1)
     } else {
@@ -85,9 +85,11 @@ export default class Intro extends Level {
 
   destructor () {
     this.music.pause()
-    this.game.off('action', this.onAction)
+    this.game.off('action', this.onKey)
+    this.game.off('keyUp', this.onKey)
     this.game.player.visible = true
     super.destructor()
   }
 }
 
+Intro.noPlayer = true

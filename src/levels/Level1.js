@@ -14,6 +14,7 @@ export default class Level1 extends Level {
     this.lesson1 = this.lesson1.bind(this)
     this.lesson2 = this.lesson2.bind(this)
     this.lesson3 = this.lesson3.bind(this)
+    this.lesson5 = this.lesson5.bind(this)
     this.onInstruct = this.onInstruct.bind(this)
 
     this.glitch = new EffectComposer.ShaderPass(DigitalGlitch)
@@ -79,10 +80,17 @@ export default class Level1 extends Level {
         this.emit('lesson', 5)
       } else if (lesson === 5) {
         if (!this.terminal) {
-          this.terminal = new DataTerminal('test')
+          this.terminal = new DataTerminal(this.game)
+          this.terminal.name = 'dataterm0001'
+          this.game.collidables.push(this.terminal)
           this.game.scene.add(this.terminal)
+          this.game.on('collide', this.lesson5)
         }
         this.game.say(`Engage the green data terminal to continue.`)
+      } else if (lesson === 6) {
+        this.game.off('collide', this.lesson6)
+        this.game.say('type "login"')
+        this.terminal.open()
       } else if (lesson === 10) {
         this.game.say('That concludes our lessons. Bandwidth has increased. Eventually, I will have more in here. ')
       }
@@ -117,6 +125,12 @@ export default class Level1 extends Level {
   lesson3 () {
     this.game.say('Good. Bandwidth has increased.').then(() => {
       this.emit('lesson', 4)
+    })
+  }
+
+  lesson5 (objects) {
+    this.game.say('Good.').then(() => {
+      this.emit('lesson', 6)
     })
   }
 

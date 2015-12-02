@@ -5,6 +5,47 @@
   <meta name="viewport" content="width=device-width, shrink-to-fit=no, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <title>hacked_ghost</title>
   <style>
+    @keyframes blink {
+      0%, 100% {
+            background-color: #000;
+            color: #aaa;
+      }
+      50% {
+            background-color: #bbb; /* not #aaa because it's seem there is Google Chrome bug */
+            color: #000;
+      }
+    }
+    @-webkit-keyframes blink {
+      0%, 100% {
+            background-color: #000;
+            color: #aaa;
+      }
+      50% {
+            background-color: #bbb;
+            color: #000;
+      }
+    }
+    @-ms-keyframes blink {
+      0%, 100% {
+            background-color: #000;
+            color: #aaa;
+      }
+      50% {
+            background-color: #bbb;
+            color: #000;
+      }
+    }
+    @-moz-keyframes blink {
+      0%, 100% {
+            background-color: #000;
+            color: #aaa;
+      }
+      50% {
+            background-color: #bbb;
+            color: #000;
+      }
+    }
+
     body {
       background: #000;
       margin:0;
@@ -19,10 +60,50 @@
       -webkit-user-select : none;
       -moz-user-select  : none;
     }
+    #terminal {
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      transition: 0.6s;
+      transform: rotateY(180deg);
+      position:absolute;
+      top: 10vh;
+      left: 10vw;
+      width: 80vw;
+      height: 80vh;
+      background: #000;
+      color: #0f0;
+      padding: 10px;
+      font-family: "Lucida Console", Monaco, monospace;
+      opacity: 0.8;
+      border: 1px solid #ccc;
+      -webkit-box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
+      -moz-box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
+      box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
+    }
+    #terminal.active {
+      transform: rotateY(0);
+    }
+    #in {
+      background: inherit;
+      color: inherit;
+      border: none;
+      font: inherit;
+      line-height: inherit;
+      outline: none;
+      width: 100%;
+    }
+    #cursor {
+      -webkit-animation: blink 1s infinite steps(1, start);
+      -moz-animation: blink 1s infinite steps(1, start);
+      -ms-animation: blink 1s infinite steps(1, start);
+      animation: blink 1s infinite steps(1, start);
+    }
   </style>
 </head>
 <body>
-  <div id="container"></div>
+  <div id="container">
+    <div id="terminal"><span id="prompt"></span><span id="typed"></span><span id="cursor">&nbsp;</span><input id="in"></div>
+  </div>
   <script src='https://code.responsivevoice.org/responsivevoice.js'></script>
   <script src="bundle.js"></script>
 </body>
